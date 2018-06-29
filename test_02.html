@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+ <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" charset="utf-8">
+ <title>平台注册</title>
+ <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.2/style/weui.min.css">
+ <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.0/css/jquery-weui.min.css">
+ <style>
+  .hide{
+   display: none;
+  }
+  .fr{
+   float: right;
+  }
+  .fl{
+   float: left;
+  }
+  .text-right{
+   text-align: right!important;
+  }
+  .text-center{
+   text-align: center!important;;
+  }
+  .text-left{
+   text-align: left!important;;
+  }
+  .w10{width:10%;}
+  .w20{width:20%;}
+  .w30{width:30%;}
+  .w40{width:40%;}
+  .w50{width:50%;}
+  .w60{width:60%;}
+  .w70{width:70%;}
+  .w80{width:80%;}
+  .w90{width:90%;}
+  .w100{width:100%;}
+  /*图片上传部分样式*/
+  .uploadImg ul,li{
+   list-style: none;
+   margin:0;
+   padding: 0;
+  }
+  .uploadImg ul{
+   width:100%;
+   display: flex;
+   justify-content: space-evenly;
+   font-size: .5rem;
+  }
+  .uploadImg li{
+   text-align: center;
+  }
+  .uploadImg li>div:not(.hide){
+   display: inline-block;
+   position: relative;
+  }
+  .validate-required::before{
+   content: '*';
+   color: red;
+   font-size: 50%;
+  }
+  .weui-cells_form{
+   margin-top: 0;
+  }
+  .showActive{
+   display: block!important;
+  }.showActive-ib{
+    display: inline-block!important;
+   }
+  ul,li{
+   list-style: none;
+   margin:0;
+   padding: 0;
+  }
+  ul{
+   width:100%;
+   display: flex;
+   justify-content: space-evenly;
+   font-size: .5rem;
+  }
+  li{
+   text-align: center;
+  }
+  li>div{
+   display: inline-block;
+   position: relative;
+  }
+  body,html{
+   height:100%;
+  }
+  label > *{
+   pointer-events : auto;
+  }
+  .weui-popup__container--visible .close-popup{
+   display: block;
+  }
+  .weui-btn-area{
+   margin:0;
+  }
+  .weui-cells{
+   margin:0;
+  }
+  .J_GetCode{
+   font-size: 12px;
+  }
+  #ftype{
+   text-align: center;
+  }
+  .roleDiv>div{
+   display: none;
+  }
+ </style>
+</head>
+<body >
+<!--注册账号-->
+<div class="weui-cells weui-cells_form">
+ <div class="userInfo">
+  <!--身份证图片-->
+  <div class="weui-cell">
+   <div class="weui-cell__hd"><label class="weui-label validate-required">身份证：</label></div>
+   <div class="weui-cell__bd">
+    <ul>
+     <li imgNum="fidCardFile1">
+      <div class="weui-uploader__input-box">
+       <input class="weui-uploader__input" isRequired="true" placeholder="请上传身份证正面照片" type="file" accept="image/*">
+      </div>
+      <div class="add_img weui-uploader__file hide"></div>
+      <p class="validate-required">身份证正面</p>
+     </li>
+     <li imgNum="fidCardFile2">
+      <div class="weui-uploader__input-box">
+       <input class="weui-uploader__input" isRequired="true" placeholder="请上传身份证反面照片" type="file" accept="image/*">
+      </div>
+      <div class="add_img weui-uploader__file hide"></div>
+      <p class="validate-required">身份证反面</p>
+     </li>
+    </ul>
+   </div>
+  </div>
+  <!--身份证号-->
+  <div class="weui-cell">
+   <div class="weui-cell__hd"><label for="" class="weui-label">身份证号</label></div>
+   <div class="weui-cell__bd">
+    <input type="text" class="weui-input" placeholder="请输入身份证号">
+   </div>
+  </div>
+  <!--选择对应角色-->
+  <div class="weui-cell">
+   <div class="weui-cell__hd">
+    <label for="ftype" class="weui-label validate-required">请选择角色</label>
+   </div>
+   <div class="weui-cell__bd">
+    <input class="weui-input" id="ftype" name="ftype" type="text" value="车主" readonly="" data-values="2">
+   </div>
+  </div>
+ </div>
+
+<script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/jquery-weui/1.2.0/js/jquery-weui.min.js"></script>
+<script>
+    $("#ftype").select({
+        title: "选择认证角色",
+        items: [
+            {
+                title: "驾驶员",
+                value: "3",
+            },
+            {
+                title: "车主",
+                value: "2",
+            },
+            {
+                title: "货主",
+                value: "1",
+            }
+        ],
+        onClose : () => {
+            var DOM = $("."+$("#ftype").attr("data-values"));
+            if(DOM.is(":hidden")){
+                DOM.addClass("showActive").siblings(".showActive").removeClass("showActive");
+            }
+        }
+    });
+    "use strict"
+    /*
+    * 设置微信端上传图片
+    * option 配置参数
+    * imgDelete  照片是否可以删除
+    *
+    * */
+    class getImgData{
+        constructor(option){
+            this.defaultOption = {
+                imgDelete : true
+            }
+            this.imgData = {};
+            this.option = $.extend({},this.defaultOption,option)
+            this.init();
+        }
+        init(){
+            let that = this;
+            //绑定选择
+            that.bingChange();
+            //绑定显示图片
+            that.viewImg();
+            //绑定删除图片
+            if(that.option.imgDelete){
+                that.deleteImg();
+            }else{
+                $(".weui-gallery__del").remove();
+            }
+            //点击span时缩小
+            $("#modal span").click(()=>{
+                $("#modal").hide();
+            })
+        }
+        bingChange(){
+            let that = this;
+            $("input[type=file]").change(function(){
+                let reader = new FileReader();
+                reader.onload = evt => {
+                    //如果文件大于1M压缩图片
+                    console.log("压缩前"+that.showSize(evt.target.result)+"kb")
+                    if(this.files[0].size > 1*1024*1024){
+                        that.dealImage(evt.target.result,{w:"500",h:"500",quality:0.5},res => {
+                            console.log("压缩后"+that.showSize(res)+"kb")
+                            that.setImg($(this).parents("li").attr("imgNum"),{
+                                "base64":res,
+                                "file":this.files[0]
+                            });
+                        })
+                    }else{
+                        that.setImg($(this).parents("li").attr("imgNum"),{
+                            "base64":evt.target.result,
+                            "file":this.files[0]
+                        });
+                    }
+
+                }
+                reader.readAsDataURL(this.files[0]);
+            })
+        }
+        viewImg(){
+            $("div.add_img").click(function(){
+                $("#modal").show().find("span").css("backgroundImage",$(this).css("backgroundImage")).attr("imgNum",$(this).parents("li").attr("imgNum"));
+            })
+        }
+        deleteImg(){
+            let that = this;
+            $(".weui-gallery__del").click(()=>{
+                $.confirm("您确定要删除该张照片吗", "确认删除?", function() {
+                    that.setImg($("#modal span").attr("imgNum"))
+                    $("#modal").hide();
+                    $.toast("图片已经删除!");
+                }, function() {
+                    //取消操作
+                });
+            })
+        }
+        setImg(imgNum,data){
+            // imgNum 每个li的imgNum标识  data 图片路径
+            if(data && data['base64']){
+                this.imgData[imgNum] = {
+                    'base64' : data.base64 ,
+                    'file' : data.file
+                };
+                $("li[imgNum = "+ imgNum +"]").find(".weui-uploader__input-box").hide().next(".add_img").removeClass("hide").css("backgroundImage",`url(${data['base64']})`);
+            }else{
+                this.imgData[imgNum] = null;
+                $("li[imgNum = "+ imgNum +"]").find(".weui-uploader__input-box").show().next(".add_img").css("backgroundImage","").addClass("hide");
+            }
+        }
+        getImg(){
+            return this.imgData
+        }
+        dealImage(path, obj, callback){
+            //压缩img  path 图片路径 obj{w:压缩后图片宽,h:压缩后图片高,quality:图片质量}
+            var img = new Image();
+            img.src = path;
+            img.onload = function(){
+                var that = this;
+                // 默认按比例压缩
+                var w = that.width,
+                    h = that.height,
+                    scale = w / h;
+                w = obj.width || w;
+                h = obj.height || (w / scale);
+                var quality = 0.5;  // 默认图片质量为0.5
+                //生成canvas
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                // 创建属性节点
+                var anw = document.createAttribute("width");
+                anw.nodeValue = w;
+                var anh = document.createAttribute("height");
+                anh.nodeValue = h;
+                canvas.setAttributeNode(anw);
+                canvas.setAttributeNode(anh);
+                ctx.drawImage(that, 0, 0, w, h);
+                // 图像质量
+                if(obj.quality && obj.quality <= 1 && obj.quality > 0){
+                    quality = obj.quality;
+                }
+                // quality值越小，所绘制出的图像越模糊
+                var base64 = canvas.toDataURL('image/jpeg', quality );
+                // 回调函数返回base64的值
+                callback(base64);
+            }
+        }
+        showSize(base64url) {
+            //获取base64图片大小，返回KB数字
+            var str = base64url.replace('data:image/png;base64,', '');
+            var equalIndex = str.indexOf('=');
+            if(str.indexOf('=')>0) {
+                str=str.substring(0, equalIndex);
+            }
+            var strLength=str.length;
+            var fileLength=((strLength-(strLength/8)*2)/1024).toFixed(1);
+            return fileLength;
+        }
+    }
+    let _img = new getImgData();
+    $(".submit").click(function(){
+        console.log(_img.getImg());
+    })
+</script>
+</body>
+</html>
